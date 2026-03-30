@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>TimeTrace Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <h1>📊 TimeTrace Dashboard</h1>
+
+    <canvas id="chart" width="400" height="200"></canvas>
+
+<script>
+let chart;
+
+async function loadData() {
+    const res = await fetch("/api/usage/");
+    const data = await res.json();
+
+    const labels = data.map(d => d.domain);
+    const times = data.map(d => Math.round(d.total_time / 1000));
+
+    if (chart) {
+        chart.destroy(); // 🔥 important
+    }
+
+    chart = new Chart(document.getElementById('chart'), {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Time Spent (seconds)',
+                data: times
+            }]
+        }
+    });
+}
+
+// initial load
+loadData();
+
+// auto refresh every 5 sec
+setInterval(loadData, 5000);
+</script>
+
+</body>
+</html>
